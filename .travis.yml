@@ -1,0 +1,65 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2019 Esteban J. G. Gabancho.
+#
+# Flask-SSO-SAML is free software; you can redistribute it and/or modify it
+# under the terms of the MIT License; see LICENSE file for more details.
+
+notifications:
+  email: false
+
+sudo: false
+
+language: python
+
+matrix:
+  fast_finish: true
+  allow_failures:
+  - env: REQUIREMENTS=devel
+
+addons:
+  apt:
+    update: true
+
+cache:
+- pip
+
+env:
+- REQUIREMENTS=lowest
+- REQUIREMENTS=release DEPLOY=true
+- REQUIREMENTS=devel
+
+python:
+- '2.7'
+- '3.6'
+
+before_install:
+- sudo apt-get install -y libxml2-dev libxmlsec1-dev
+- travis_retry pip install --upgrade pip setuptools py
+- travis_retry pip install twine wheel coveralls requirements-builder
+- requirements-builder -e all --level=min setup.py > .travis-lowest-requirements.txt
+- requirements-builder -e all --level=pypi setup.py > .travis-release-requirements.txt
+- requirements-builder -e all --level=dev --req requirements-devel.txt setup.py >
+  .travis-devel-requirements.txt
+
+install:
+- travis_retry pip install -r .travis-${REQUIREMENTS}-requirements.txt
+- travis_retry pip install -e .[all]
+
+script:
+- "./run-tests.sh"
+
+after_success:
+- coveralls
+
+deploy:
+  provider: pypi
+  user: egabancho
+  password:
+    secure: JocmwQw5cwPOKthchiFKxfh9+pA/tvBVzYRBRckNNy7z5/xKYWqStOs8b7ZIWFFOQ03x9Zuf8iFYQaH3616CG+Bob4f/7xKfmUzE7cCWlMnJzLZIXtLkFbm0U+qlW8BjJySZBsDFkZUVbgU4emP3NL63ue2iPlbq8xMUOZ/urrsJC3XEvOycSqU2s1bE4nF7l6qmzt6OsynJ/4v7sKo/XfzKewsdOBuMqXvLcevP+1ftKpd4LPJldxf3x9SdhrD2aO73j3FDd8u+RseWPCpyGwHAwwN8B+oK+EpZMK1JMS1uDV3Wsessq5QRt5GO6NfJCXG8qaHiIphOZMs/jOtJLAh/Kn7UiSEMzz46ITyxr/loM74BWaB/1QhIlzhvur6w5klZXcatIic64a8ea0qTsP0TGeNbtFB/8nmuKFeaT8JyFg+0qTZVg/KPsJVRRr//V3ISXWc8/7Fu+jrgJkk3MHzhrBkzliCx8DK4f70CtKNtOOpZs7UQbz3AKL+vcJSfCbPiwUMs581SzBV7WUNPbVPsGHvalcw5N+10DlYVDI2LHWf7SilbqHySbBLnHrKh1gJQ74QW8r4WHifNbOpGJ+oDlo4a6IdWL9cFeG+FbCkbsmnWOU+mTLwTxmSZAWQcNLdFpNyN8KKTYmGukvv1zZGS1lhDDIsSQc93Jeyw/3o=
+  distributions: sdist bdist_wheel
+  on:
+    tags: true
+    python: '2.7'
+    repo: egabancho/flask-sso-saml
+    condition: "$DEPLOY = true"
