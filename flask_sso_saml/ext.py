@@ -22,6 +22,10 @@ from ._compat import string_types
 from .utils import SAMLAuth, prepare_flask_request
 from .views import create_blueprint
 
+try:
+    import ujson as json
+except ImportError:
+    import json
 
 def _default_config(idp):
     """Default IdP configuration."""
@@ -194,9 +198,13 @@ class _FlaskSSOSAMLState(object):
 
         if config['settings_file_path']:
             with open(config['settings_file_path'], 'r') as idp:
-                external_conf = OneLogin_Saml2_IdPMetadataParser.parse(
-                    idp.read()
-                )
+                file = config['settings_file_path']
+                # xml format
+                if file.endswith('.xml'):
+                    external_conf = OneLogin_Saml2_IdPMetadataParser.parse(idp.read())
+                # json format
+                elif file.endswith('.json'):
+                    external_conf = json.loads(idp.read())
             config['settings']['idp'].update(external_conf.get('idp'))
 
         # Load certificate and key
