@@ -6,11 +6,11 @@
 # under the terms of the MIT License; see LICENSE file for more details.
 
 """Flask extension that provides SSO SAML integration."""
-
 from __future__ import absolute_import, print_function
 
 import collections
 import copy
+import json
 from functools import wraps
 
 from flask import url_for
@@ -194,9 +194,14 @@ class _FlaskSSOSAMLState(object):
 
         if config['settings_file_path']:
             with open(config['settings_file_path'], 'r') as idp:
-                external_conf = OneLogin_Saml2_IdPMetadataParser.parse(
-                    idp.read()
-                )
+                file = config['settings_file_path']
+                # xml format
+                if file.endswith('.xml'):
+                    external_conf = \
+                        OneLogin_Saml2_IdPMetadataParser.parse(idp.read())
+                # json format
+                elif file.endswith('.json'):
+                    external_conf = json.loads(idp.read())
             config['settings']['idp'].update(external_conf.get('idp'))
 
         # Load certificate and key
