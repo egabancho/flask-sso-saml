@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 Esteban J. G. Gabancho.
+# Copyright (C) 2019, 2022 Esteban J. G. Gabancho.
 #
 # Flask-SSO-SAML is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -9,8 +9,8 @@
 
 from __future__ import absolute_import, print_function
 
-import collections
 import copy
+from collections.abc import Mapping
 from functools import wraps
 
 from flask import url_for
@@ -170,7 +170,7 @@ class _FlaskSSOSAMLState(object):
         """Update default config with the ones read from configuration."""
         def update(d, u):
             for k, v in u.items():
-                if isinstance(v, collections.Mapping):
+                if isinstance(v, Mapping):
                     d[k] = update(d.get(k, {}), v)
                 else:
                     d[k] = v

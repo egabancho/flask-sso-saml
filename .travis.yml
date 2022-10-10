@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 Esteban J. G. Gabancho.
+# Copyright (C) 2019, 2022 Esteban J. G. Gabancho.
 #
 # Flask-SSO-SAML is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
@@ -30,8 +30,9 @@ env:
 - REQUIREMENTS=devel
 
 python:
-- '2.7'
-- '3.6'
+- '3.8'
+- '3.9'
+- '3.10'
 
 before_install:
 - sudo apt-get install -y libxml2-dev libxmlsec1-dev
